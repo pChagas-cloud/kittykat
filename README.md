@@ -8,5 +8,6 @@
 <li> Edit tasks </li>
 <li> Task deadline </li>
 <li> Task importance (low -- high) </li>
+<li> Create separate file for functions, bcs right now it's a fucking mess </li>
 
 </ul>
