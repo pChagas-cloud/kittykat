@@ -3,10 +3,13 @@
 import os
 import click
 
-default_todolist_file = os.path.join(os.path.expanduser('~'), '.config', 'todo_python', 'tasklist')
+default_todolist_file = os.path.join(os.path.expanduser('~'), '.config', 'kittykat', 'tasklist')
+default_idealist_file = os.path.join(os.path.expanduser('~'), '.config', 'kittykat', 'idealist')
+ 
 
 class program_backend:
     def __init__(self):
+        self.idealistPath = default_idealist_file
         self.tasklistPath = default_todolist_file
         f = open(self.tasklistPath, 'r')
         tasklist = []
@@ -117,6 +120,8 @@ class program_backend:
         for i in range(len(tasks)):
             print(f'{i+1} - {tasks[i]}')
 
+    # This function is quite bloated, but it does the job. It takes an task index and changes it to a new task that the user can type
+    # It's 6AM and I am sleepy. Sorry for the terrible comment
     def edit_task(self, task_index):
         taskindex = int(task_index)
         taskindex -= 1
@@ -125,7 +130,7 @@ class program_backend:
         print(f'kittykat: you are editing: {tasklist[taskindex][0]}') 
         new_task = input('kittykat: Type the new task! \n:')
         done = input('kittykat: Great! Now, is it done? [Y/n] ')
-        while done.strip() != "yes" and done.strip() != "y" and done.strip() != "no" and done.strip() != "n":
+        while done.strip().lower() != "yes" and done.strip().lower() != "y" and done.strip().lower() != "no" and done.strip().lower() != "n":
             print('kittykat: Please, enter a valid "Y/N" answer...')
             done = input(":")
         if done == 'y' or done == 'yes':
@@ -140,6 +145,100 @@ class program_backend:
         print(f'kittykat: modified task {task_index}, that now is: "{new_task}"')
 
 
+    #----------- START MESSING WITH IDEAS ---------------#
+
+    # This function read the self.idealistPath file (that contais the ideas and it's descriptions) and returns a vector that contains: [ (idea1, idea1_desc), (idea2, idea2_desc)...]
+    def get_idea_package(self):
+        ideas = []
+        descriptions = []
+        with open(self.idealistPath, 'r') as f:
+            counter = 0
+            for i in f.readlines():
+                if counter == 0:
+                    ideas.append(i)
+                    counter += 1
+                else:
+                    descriptions.append(i)
+                    counter -= 1
+        package = []
+        for i in range(len(ideas)):
+            pack = (ideas[i], descriptions[i])
+            package.append(pack)
+        return package
+
+    def get_ideafile_len(self):
+        return len(self.get_idea_package())
+
+    # This function gets the package returned by get_idea_package and prints the ideas, with or without descriptions (1=with_desc, 2=without_desc)
+    def print_ideas(self, print_desk):
+        idea_list = self.get_idea_package()
+        if print_desk == 1:
+            for i in range(len(idea_list)):
+                print(f"{i+1} - {idea_list[i][0].strip()}")
+                print(f"    description: {idea_list[i][1].strip()}")
+        else:
+            for i in range(len(idea_list)):
+                print(f"{i+1} - {idea_list[i][0].strip()}")
+
+    # This function takes a new idea from the user, asks for a desc, and then writes it on the self.idealistPath
+    def add_idea(self, idea):
+        current_ideas = self.get_idea_package()
+        print('kittykat: add idea description?')
+        descbool = input('[Y/n]')
+        while descbool.strip().lower() != "yes" and descbool.strip().lower() != "y" and descbool.strip().lower() != "no" and descbool.strip().lower() != "n":
+                print('kittykat: Please, enter a valid "Y/N" answer...')
+                descbool = input(":")
+        if descbool == 'y' or descbool == 'yes':
+            print('kittykat: Write the idea description here:')
+            idea_desc = input(': ')
+        else:
+            idea_desc = 'This idea does not have a description!'
+        new_idea = (f'{idea}\n', f'{idea_desc}\n')
+        current_ideas.append(new_idea)
+        open(self.idealistPath, 'w').close()
+        with open(self.idealistPath, 'a') as f:
+            for i in current_ideas:
+                for k in i:
+                    f.writelines(f'{k}')
+
+    # This function takes an idea_index from the user and deletes the idea+idea_desc pacakge from the self.idealistPath file
+    def delete_idea(self, idea_index):
+        idea_index -= 1
+        current_ideas = self.get_idea_package()
+        deleted_idea = current_ideas[idea_index]
+        current_ideas.pop(idea_index)
+        open(self.idealistPath, 'w').close()
+        with open(self.idealistPath, 'a') as f:
+            for i in current_ideas:
+                for k in i:
+                    f.writelines(k)
+        return deleted_idea
+
+    # This function takes an idea_index, gets a new idea from the user, and rewrites the idea relative to the idea_index on the self.idealistPath file
+    def edit_idea(self, idea_index):
+        idea_index -= 1
+        current_ideas = self.get_idea_package()
+        print(f'kittykat: You are editing: "{current_ideas[idea_index][0].strip()}"')
+        new_idea = input('Kittykat: You can now rewrite the idea :) \n:')
+        print('kittykat: add idea description?')
+        descbool = input('[Y/n]')
+        while descbool.strip().lower() != "yes" and descbool.strip().lower() != "y" and descbool.strip().lower() != "no" and descbool.strip().lower() != "n":
+                print('kittykat: Please, enter a valid "Y/N" answer...')
+                descbool = input(":")
+        if descbool.strip().lower() == 'y' or descbool.strip().lower() == 'yes':
+            print('kittykat: Write the idea description here:')
+            idea_desc = input(': ')
+        else:
+            idea_desc = 'This task does not have a description!'
+        new_idea_pack = (f'{new_idea}\n', f'{idea_desc}\n')
+        current_ideas[idea_index] = new_idea_pack
+        open(self.idealistPath, 'w').close()
+        with open(self.idealistPath, 'a') as f:
+            for i in current_ideas:
+                for k in i:
+                    f.writelines(k)
+
+
     # END OF FILE-WRITING
 
     def test_stuff(self):
@@ -149,41 +248,49 @@ class program_backend:
 def cli():
     pass
 
-@cli.command()
-def tasks():
+@cli.group
+def task():
+    pass
+
+@cli.group
+def idea():
+    pass
+
+@task.command()
+def list():
     if program_backend().return_taskfile_len() > 0:
         program_backend().print_tasks()
     else:
-        print('kittykat: There are no tasks! Add one with "kittykat add"')
-@cli.command()
+        print('kittykat: There are no tasks! Add one with "kittykat task add"')
+@task.command()
 @click.argument('index', type=int, required=1)
 def delete(index):
     if int(index) <= 0:
         print('Kittykat: Hey, this index is clearly not valid >:(')
     else:
         if program_backend().return_taskfile_len() == 0:
-            print('kittykat: There are no tasks! Add one with "kittykat add"')
+            print('kittykat: There are no tasks! Add one with "kittykat task add"')
         else:
             if int(index) > program_backend().return_taskfile_len():
-                print('kittykat: You dont have that many tasks, use "kittykat tasks" to see your current tasks!') 
+                print('kittykat: You dont have that many tasks, use "kittykat task list" to see your current tasks!') 
             else:
                 delted_task = program_backend().delete_task(index)
                 print(f'kittykat: Task: "{delted_task[0]}" deleted')
 
-@cli.command()
+@task.command()
 @click.argument('task')
 def add(task):
     program_backend().write_new_task((task,0))
     print(f'kittykat: New task "{task}" added to tasklist!')
 
-@cli.command()
+@task.command()
 @click.argument('index', type=int, required=1)
 def done(index):
     if int(index) <= 0:
         print('Kittykat: Hey, this index is clearly not valid >:(')
     else:
         if int(index) > program_backend().return_taskfile_len():
-            print('kittykat: You dont have that many tasks, use "kittykat tasks" to see your current tasks!') 
+            print('kittykat: You dont have that many tasks, use "kittykat task list" to see your current tasks!') 
         else:
             completed_task = program_backend().mark_as_done(index)
             if completed_task[0].strip() == 'done':
@@ -191,16 +298,55 @@ def done(index):
             else:
                 print('kittykat: Well, more things to do then!')
 
-@cli.command()
+@task.command()
 @click.argument('index', type=int, required=1)
 def edit(index):
     if int(index) <= 0:
         print('Kittykat: Hey, this index is clearly not valid >:(')
     else:
         if int(index) > program_backend().return_taskfile_len():
-            print('kittykat: You dont have that many tasks, use "kittykat tasks" to see your current tasks!') 
+            print('kittykat: You dont have that many tasks, use "kittykat task list" to see your current tasks!') 
         else:
             program_backend().edit_task(index)
+@idea.command()
+@click.option('--showdesc', default=True, help='boolean value (1 or 0) that decides if the ideas description will be printed', type=bool)
+def list(showdesc):
+    if program_backend().get_ideafile_len() > 0:
+        program_backend().print_ideas(showdesc)
+    else:
+        print('kittykat: There are no ideas! Add one with "kittykat idea add"')
+
+@idea.command()
+@click.argument('index', type=int, required=1)
+def delete(index):
+    if int(index) <= 0:
+        print('Kittykat: Hey, this index is clearly not valid >:(')
+    else:
+        if program_backend().get_ideafile_len() == 0:
+            print('kittykat: There are no ideas! Add one with "kittykat idea add"')
+        else:
+            if int(index) > program_backend().get_ideafile_len():
+                print('kittykat: You dont have that many ideas, use "kittykat idea list" to see your current tasks!') 
+            else:
+                delted_idea = program_backend().delete_idea(index)
+                print(f'kittykat: idea: "{delted_idea[0].strip()}" deleted')
+
+@idea.command()
+@click.argument('idea')
+def add(idea):
+    program_backend().add_idea(idea)
+    print(f'kittykat: New idea "{idea}" added to idealist!')
+
+@idea.command()
+@click.argument('index', type=int, required=1)
+def edit(index):
+    if int(index) <= 0:
+        print('Kittykat: Hey, this index is clearly not valid >:(')
+    else:
+        if int(index) > program_backend().get_ideafile_len():
+            print('kittykat: You dont have that many ideas, use "kittykat idea list" to see your current ideas!') 
+        else:
+            program_backend().edit_idea(index)
 
 if __name__ == "__main__":
     cli()
