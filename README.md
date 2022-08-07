@@ -5,7 +5,6 @@
 <ul align="center">
 
 <li> Daily tasks (tasks that get added everyday) (routine command) </li>
-<li> Edit tasks </li>
 <li> Task deadline </li>
 <li> Task importance (low -- high) </li>
 <li> Create separate file for functions, bcs right now it's becoming a freaking mess </li>
