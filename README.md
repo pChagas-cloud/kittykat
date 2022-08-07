@@ -8,5 +8,6 @@
 <li> Task deadline </li>
 <li> Task importance (low -- high) </li>
 <li> Create separate file for functions, bcs right now it's becoming a freaking mess </li>
+<li> Create a decent install script </li>
 
 </ul>
