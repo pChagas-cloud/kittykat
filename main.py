@@ -3,8 +3,6 @@
 import os
 import click
 
-default_path_file = os.path.join(os.path.expanduser('~'), '.config', 'todo_python', 'defaults')
-default_greetings_file = os.path.join(os.path.expanduser('~'), '.config', 'todo_python', 'greetings')
 default_todolist_file = os.path.join(os.path.expanduser('~'), '.config', 'todo_python', 'tasklist')
 
 class program_backend:
